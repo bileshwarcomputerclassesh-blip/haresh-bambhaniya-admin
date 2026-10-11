@@ -3,7 +3,7 @@
 <html lang="gu">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#173b72">
   <title>Haresh Bambhaniya | Admin</title>
   <link rel="stylesheet" href="style.css">
@@ -14,13 +14,14 @@
       <h1>Haresh Bambhaniya</h1>
       <p>SHREE BILESHWAR COMPUTER</p>
     </div>
-    <button id="logoutBtn" hidden>Logout</button>
+    <button id="logoutBtn" type="button" hidden>Logout</button>
   </header>
 
   <main>
     <section id="loginSection" class="panel">
       <h2>Admin Login</h2>
       <p>Website મેનેજ કરવા Login કરો.</p>
+
       <form id="loginForm">
         <label for="email">Email Address</label>
         <input id="email" type="email" autocomplete="username"
@@ -32,7 +33,30 @@
           placeholder="Password" required>
 
         <button type="submit">Login</button>
+        <button type="button" id="forgotPasswordBtn">
+          Forgot Password?
+        </button>
         <p id="loginMessage" role="status"></p>
+      </form>
+    </section>
+
+    <section id="resetPasswordSection" class="panel" hidden>
+      <h2>નવો પાસવર્ડ સેટ કરો</h2>
+      <p>તમારા Admin એકાઉન્ટ માટે નવો પાસવર્ડ દાખલ કરો.</p>
+
+      <form id="resetPasswordForm">
+        <label for="newPassword">નવો પાસવર્ડ</label>
+        <input id="newPassword" type="password"
+          minlength="8" autocomplete="new-password"
+          placeholder="ઓછામાં ઓછા 8 અક્ષર" required>
+
+        <label for="confirmPassword">પાસવર્ડ ફરી દાખલ કરો</label>
+        <input id="confirmPassword" type="password"
+          minlength="8" autocomplete="new-password"
+          placeholder="પાસવર્ડ ફરી દાખલ કરો" required>
+
+        <button type="submit">પાસવર્ડ બદલો</button>
+        <p id="resetPasswordMessage" role="status"></p>
       </form>
     </section>
 
@@ -40,19 +64,19 @@
       <div class="welcome panel">
         <h2>Admin Dashboard</h2>
         <p>તમારી સંસ્થાની માહિતી અહીંથી મેનેજ કરો.</p>
-        <p id="statusMessage" role="status">Database સાથે જોડાઈ રહ્યું છે...</p>
+        <p id="statusMessage" role="status"></p>
       </div>
 
       <nav class="menu" aria-label="Admin sections">
-        <button data-section="courses">Courses</button>
-        <button data-section="students">Students</button>
-        <button data-section="attendance">Attendance</button>
-        <button data-section="fees">Fees</button>
-        <button data-section="notices">Notices</button>
-        <button data-section="gallery">Gallery</button>
-        <button data-section="about">About</button>
-        <button data-section="history">Student History</button>
-        <button data-section="feedback">Feedback</button>
+        <button type="button" data-section="courses">Courses</button>
+        <button type="button" data-section="students">Students</button>
+        <button type="button" data-section="attendance">Attendance</button>
+        <button type="button" data-section="fees">Fees</button>
+        <button type="button" data-section="notices">Notices</button>
+        <button type="button" data-section="gallery">Gallery</button>
+        <button type="button" data-section="about">About</button>
+        <button type="button" data-section="student_history">Student History</button>
+        <button type="button" data-section="feedback">Feedback</button>
       </nav>
 
       <section id="contentSection" class="panel">
