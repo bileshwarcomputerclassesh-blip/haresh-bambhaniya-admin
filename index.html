@@ -4,160 +4,70 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="theme-color" content="#173b70">
+  <meta name="theme-color" content="#173b72">
   <title>Haresh Bambhaniya | Admin</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <div class="layout">
-    <aside class="sidebar">
-      <div class="brand">
-        <div class="brand-icon">HB</div>
-        <div>
-          <h2>Haresh Bambhaniya</h2>
-          <p>Admin Panel</p>
-        </div>
+  <header class="topbar">
+    <div>
+      <h1>Haresh Bambhaniya</h1>
+      <p>SHREE BILESHWAR COMPUTER</p>
+    </div>
+    <button id="logoutBtn" hidden>Logout</button>
+  </header>
+
+  <main>
+    <section id="loginSection" class="panel">
+      <h2>Admin Login</h2>
+      <p>Website મેનેજ કરવા Login કરો.</p>
+      <form id="loginForm">
+        <label for="email">Email Address</label>
+        <input id="email" type="email" autocomplete="username"
+          placeholder="Admin email" required>
+
+        <label for="password">Password</label>
+        <input id="password" type="password"
+          autocomplete="current-password"
+          placeholder="Password" required>
+
+        <button type="submit">Login</button>
+        <p id="loginMessage" role="status"></p>
+      </form>
+    </section>
+
+    <section id="dashboardSection" hidden>
+      <div class="welcome panel">
+        <h2>Admin Dashboard</h2>
+        <p>તમારી સંસ્થાની માહિતી અહીંથી મેનેજ કરો.</p>
+        <p id="statusMessage" role="status">Database સાથે જોડાઈ રહ્યું છે...</p>
       </div>
 
-      <nav>
-        <a class="nav-link active" href="#dashboard">▦ Dashboard</a>
-        <a class="nav-link" href="#students">♙ Students</a>
-        <a class="nav-link" href="#attendance">✓ Attendance</a>
-        <a class="nav-link" href="#fees">₹ Fees Management</a>
-        <a class="nav-link" href="#courses">▤ Courses & Batches</a>
-        <a class="nav-link" href="#notices">♧ Notices</a>
+      <nav class="menu" aria-label="Admin sections">
+        <button data-section="courses">Courses</button>
+        <button data-section="students">Students</button>
+        <button data-section="attendance">Attendance</button>
+        <button data-section="fees">Fees</button>
+        <button data-section="notices">Notices</button>
+        <button data-section="gallery">Gallery</button>
+        <button data-section="about">About</button>
+        <button data-section="history">Student History</button>
+        <button data-section="feedback">Feedback</button>
       </nav>
 
-      <div class="sidebar-bottom">
-        <span>SHREE BILESHWER</span>
-        <small>COMPUTER CLASSES</small>
-      </div>
-    </aside>
-
-    <main class="main">
-      <header class="topbar">
-        <div>
-          <p class="eyebrow">SHREE BILESHWER COMPUTER CLASSES</p>
-          <h1>Admin Dashboard</h1>
-          <p class="muted">નમસ્તે! તમારા ઇન્સ્ટિટ્યૂટનો હિસાબ અહીં જુઓ.</p>
-        </div>
-        <div class="admin-chip">
-          <div class="avatar">HB</div>
-          <div><strong>Haresh</strong><small>Administrator</small></div>
-        </div>
-      </header>
-
-      <section id="dashboard">
-        <div class="section-heading">
-          <div><h2>Overview</h2><p>આજની મુખ્ય માહિતી</p></div>
-          <span class="demo-tag">DEMO DATA</span>
-        </div>
-
-        <div class="stats">
-          <article class="stat-card">
-            <div class="stat-top"><span>કુલ વિદ્યાર્થીઓ</span><span class="stat-icon blue">♙</span></div>
-            <strong id="totalStudents">0</strong>
-            <p>રજીસ્ટર થયેલા વિદ્યાર્થીઓ</p>
-          </article>
-          <article class="stat-card">
-            <div class="stat-top"><span>આજની હાજરી</span><span class="stat-icon green">✓</span></div>
-            <strong id="presentStudents">0</strong>
-            <p>આજે હાજર વિદ્યાર્થીઓ</p>
-          </article>
-          <article class="stat-card">
-            <div class="stat-top"><span>ફી વસૂલાત</span><span class="stat-icon purple">₹</span></div>
-            <strong id="feesCollected">₹0</strong>
-            <p>ડેમો રેકોર્ડની કુલ જમા ફી</p>
-          </article>
-          <article class="stat-card">
-            <div class="stat-top"><span>બાકી ફી</span><span class="stat-icon orange">!</span></div>
-            <strong id="feesPending">₹0</strong>
-            <p>ડેમો રેકોર્ડની બાકી રકમ</p>
-          </article>
-        </div>
+      <section id="contentSection" class="panel">
+        <h2>Dashboard</h2>
+        <p>ઉપરના વિભાગમાંથી વિકલ્પ પસંદ કરો.</p>
       </section>
+    </section>
+  </main>
 
-      <section class="content-grid">
-        <article class="panel" id="students">
-          <div class="panel-heading">
-            <div><h2>વિદ્યાર્થીઓ</h2><p>વિદ્યાર્થીની માહિતી મેનેજ કરો</p></div>
-            <button class="primary-btn" id="showStudentForm">+ Add Student</button>
-          </div>
+  <footer>
+    <p>© SHREE BILESHWAR COMPUTER</p>
+  </footer>
 
-          <form id="studentForm" class="student-form hidden">
-            <label>વિદ્યાર્થીનું નામ
-              <input id="studentName" required maxlength="80" placeholder="વિદ્યાર્થીનું નામ">
-            </label>
-            <label>કોર્સ
-              <input id="studentCourse" required maxlength="80" placeholder="જેમ કે CCC">
-            </label>
-            <label>કુલ ફી (₹)
-              <input id="studentFee" type="number" min="0" step="1" required placeholder="5000">
-            </label>
-            <label>જમા ફી (₹)
-              <input id="studentPaid" type="number" min="0" step="1" value="0" required>
-            </label>
-            <div class="form-actions">
-              <button type="submit" class="primary-btn">Save Student</button>
-              <button type="button" class="secondary-btn" id="cancelStudent">Cancel</button>
-            </div>
-          </form>
-
-          <div class="table-wrap">
-            <table>
-              <thead><tr><th>વિદ્યાર્થી</th><th>કોર્સ</th><th>કુલ ફી</th><th>બાકી</th></tr></thead>
-              <tbody id="studentTable"></tbody>
-            </table>
-          </div>
-          <p class="empty-state hidden" id="emptyStudents">હજુ કોઈ વિદ્યાર્થી ઉમેર્યો નથી.</p>
-        </article>
-
-        <article class="panel" id="attendance">
-          <div class="panel-heading">
-            <div><h2>આજની હાજરી</h2><p>વિદ્યાર્થીની હાજરી નોંધો</p></div>
-          </div>
-          <div id="attendanceList" class="attendance-list"></div>
-          <p class="muted small">હાજરી બદલવા માટે દરેક વિદ્યાર્થીની બાજુનું બટન દબાવો.</p>
-        </article>
-      </section>
-
-      <section class="panel lower-panel" id="fees">
-        <div class="panel-heading">
-          <div><h2>Fees Management</h2><p>વિદ્યાર્થી મુજબ ફીનો હિસાબ</p></div>
-        </div>
-        <div class="table-wrap">
-          <table>
-            <thead><tr><th>વિદ્યાર્થી</th><th>કુલ ફી</th><th>જમા</th><th>બાકી</th></tr></thead>
-            <tbody id="feesTable"></tbody>
-          </table>
-        </div>
-      </section>
-
-      <section class="content-grid lower-panel">
-        <article class="panel" id="courses">
-          <h2>Courses & Batches</h2>
-          <p class="muted">વિદ્યાર્થી ઉમેરતી વખતે કોર્સનું નામ દાખલ કરો.</p>
-          <div id="courseList" class="course-list"></div>
-        </article>
-        <article class="panel" id="notices">
-          <h2>Notices</h2>
-          <p class="muted">વિદ્યાર્થીઓ માટે સૂચના લખો.</p>
-          <form id="noticeForm">
-            <label>સૂચનાનું શીર્ષક
-              <input id="noticeTitle" required maxlength="100" placeholder="જેમ કે પરીક્ષાની તારીખ">
-            </label>
-            <label>સૂચના
-              <textarea id="noticeText" required maxlength="1000" rows="3" placeholder="સૂચના લખો"></textarea>
-            </label>
-            <button type="submit" class="primary-btn">Add Notice</button>
-          </form>
-          <div id="noticeList" class="notice-list"></div>
-        </article>
-      </section>
-
-      <footer>© <span id="year"></span> Haresh Bambhaniya · Admin Website</footer>
-    </main>
-  </div>
-  <script src="script.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="supabase-config.js"></script>
+  <script src="app.js"></script>
 </body>
 </html>
