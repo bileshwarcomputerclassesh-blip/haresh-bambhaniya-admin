@@ -4,91 +4,215 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#173b72">
-  <title>Haresh Bambhaniya | Admin</title>
+  <meta name="theme-color" content="#142544">
+  <title>SHREE BILESHWAR | Admin Panel</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <header class="topbar">
-    <div>
-      <h1>Haresh Bambhaniya</h1>
-      <p>SHREE BILESHWAR COMPUTER</p>
+    <a class="brand" href="#" aria-label="Admin Home">
+      <span class="brand-icon"><i data-lucide="graduation-cap"></i></span>
+      <span class="brand-text">
+        <strong>SHREE BILESHWAR</strong>
+        <small>COMPUTER CLASSES</small>
+      </span>
+    </a>
+
+    <div class="topbar-actions">
+      <button id="menuToggle" class="icon-btn" type="button"
+        aria-label="Open menu" aria-expanded="false">
+        <i data-lucide="menu"></i>
+      </button>
+      <button id="logoutBtn" class="logout-btn" type="button" hidden>
+        <i data-lucide="log-out"></i>
+        <span>Logout</span>
+      </button>
     </div>
-    <button id="logoutBtn" type="button" hidden>Logout</button>
   </header>
 
-  <main>
-    <section id="loginSection" class="panel">
+  <main class="app-main">
+    <section id="loginSection" class="panel login-panel">
+      <div class="login-emblem"><i data-lucide="shield-check"></i></div>
+      <p class="eyebrow">ADMINISTRATION PORTAL</p>
       <h2>Admin Login</h2>
-      <p>Website મેનેજ કરવા Login કરો.</p>
+      <p class="muted">તમારી સંસ્થાની Website મેનેજ કરવા Login કરો.</p>
 
       <form id="loginForm">
         <label for="email">Email Address</label>
-        <input id="email" type="email" autocomplete="username"
-          placeholder="Admin email" required>
+        <div class="input-wrap">
+          <i data-lucide="mail"></i>
+          <input id="email" type="email" autocomplete="username"
+            placeholder="Admin email" required>
+        </div>
 
         <label for="password">Password</label>
-        <input id="password" type="password"
-          autocomplete="current-password"
-          placeholder="Password" required>
+        <div class="input-wrap">
+          <i data-lucide="lock-keyhole"></i>
+          <input id="password" type="password"
+            autocomplete="current-password"
+            placeholder="Password" required>
+        </div>
 
-        <button type="submit">Login</button>
-        <button type="button" id="forgotPasswordBtn">
+        <button class="primary-btn" type="submit">
+          Login <i data-lucide="arrow-right"></i>
+        </button>
+        <button type="button" id="forgotPasswordBtn" class="text-btn">
           Forgot Password?
         </button>
-        <p id="loginMessage" role="status"></p>
+        <p id="loginMessage" class="form-message" role="status"></p>
       </form>
     </section>
 
-    <section id="resetPasswordSection" class="panel" hidden>
+    <section id="resetPasswordSection" class="panel login-panel" hidden>
+      <div class="login-emblem"><i data-lucide="key-round"></i></div>
       <h2>નવો પાસવર્ડ સેટ કરો</h2>
-      <p>તમારા Admin એકાઉન્ટ માટે નવો પાસવર્ડ દાખલ કરો.</p>
+      <p class="muted">તમારા Admin એકાઉન્ટ માટે નવો પાસવર્ડ દાખલ કરો.</p>
 
       <form id="resetPasswordForm">
         <label for="newPassword">નવો પાસવર્ડ</label>
-        <input id="newPassword" type="password"
-          minlength="8" autocomplete="new-password"
+        <input id="newPassword" type="password" minlength="8"
+          autocomplete="new-password"
           placeholder="ઓછામાં ઓછા 8 અક્ષર" required>
 
         <label for="confirmPassword">પાસવર્ડ ફરી દાખલ કરો</label>
-        <input id="confirmPassword" type="password"
-          minlength="8" autocomplete="new-password"
+        <input id="confirmPassword" type="password" minlength="8"
+          autocomplete="new-password"
           placeholder="પાસવર્ડ ફરી દાખલ કરો" required>
 
-        <button type="submit">પાસવર્ડ બદલો</button>
-        <p id="resetPasswordMessage" role="status"></p>
+        <button class="primary-btn" type="submit">પાસવર્ડ બદલો</button>
+        <p id="resetPasswordMessage" class="form-message" role="status"></p>
       </form>
     </section>
 
-    <section id="dashboardSection" hidden>
-      <div class="welcome panel">
-        <h2>Admin Dashboard</h2>
-        <p>તમારી સંસ્થાની માહિતી અહીંથી મેનેજ કરો.</p>
-        <p id="statusMessage" role="status"></p>
+    <section id="dashboardSection" class="dashboard-layout" hidden>
+      <div id="sidebarOverlay" class="sidebar-overlay"></div>
+
+      <aside id="adminSidebar" class="sidebar">
+        <div class="sidebar-heading">
+          <span class="sidebar-caption">MAIN MENU</span>
+        </div>
+
+        <nav class="menu" aria-label="Admin sections">
+          <button type="button" class="menu-item active"
+            data-section="courses">
+            <i data-lucide="book-open"></i><span>Courses</span>
+            <i class="menu-chevron" data-lucide="chevron-right"></i>
+          </button>
+
+          <button type="button" class="menu-item"
+            data-section="students">
+            <i data-lucide="users-round"></i><span>Students</span>
+            <i class="menu-chevron" data-lucide="chevron-right"></i>
+          </button>
+
+          <button type="button" class="menu-item"
+            data-section="attendance">
+            <i data-lucide="calendar-check"></i><span>Attendance</span>
+            <i class="menu-chevron" data-lucide="chevron-right"></i>
+          </button>
+
+          <button type="button" class="menu-item"
+            data-section="fees">
+            <i data-lucide="wallet"></i><span>Fees Management</span>
+            <i class="menu-chevron" data-lucide="chevron-right"></i>
+          </button>
+
+          <div class="sidebar-divider"></div>
+          <span class="sidebar-caption">CONTENT MANAGEMENT</span>
+
+          <button type="button" class="menu-item"
+            data-section="notices">
+            <i data-lucide="bell-ring"></i><span>Notices</span>
+            <i class="menu-chevron" data-lucide="chevron-right"></i>
+          </button>
+
+          <button type="button" class="menu-item"
+            data-section="gallery">
+            <i data-lucide="images"></i><span>Gallery</span>
+            <i class="menu-chevron" data-lucide="chevron-right"></i>
+          </button>
+
+          <button type="button" class="menu-item"
+            data-section="about">
+            <i data-lucide="building-2"></i><span>About Institute</span>
+            <i class="menu-chevron" data-lucide="chevron-right"></i>
+          </button>
+
+          <div class="sidebar-divider"></div>
+          <span class="sidebar-caption">OTHER</span>
+
+          <button type="button" class="menu-item"
+            data-section="student_history">
+            <i data-lucide="history"></i><span>Student History</span>
+            <i class="menu-chevron" data-lucide="chevron-right"></i>
+          </button>
+
+          <button type="button" class="menu-item"
+            data-section="feedback">
+            <i data-lucide="message-square-text"></i><span>Feedback</span>
+            <i class="menu-chevron" data-lucide="chevron-right"></i>
+          </button>
+        </nav>
+
+        <div class="sidebar-footer">
+          <div class="admin-avatar"><i data-lucide="user-round"></i></div>
+          <div class="admin-details">
+            <strong>Administrator</strong>
+            <small>Institute Admin</small>
+          </div>
+          <i data-lucide="shield-check" class="verified-icon"></i>
+        </div>
+      </aside>
+
+      <div class="dashboard-main">
+        <div class="page-heading">
+          <div>
+            <p class="eyebrow">INSTITUTE MANAGEMENT</p>
+            <h1>Admin Dashboard</h1>
+            <p class="muted">તમારી સંસ્થાની માહિતી અહીંથી મેનેજ કરો.</p>
+          </div>
+          <div class="heading-icon"><i data-lucide="layout-dashboard"></i></div>
+        </div>
+
+        <div id="statusMessage" class="status-message" role="status"></div>
+
+        <section id="contentSection" class="panel content-panel">
+          <h2>Dashboard</h2>
+          <p>ડાબી બાજુના મેનૂમાંથી વિકલ્પ પસંદ કરો.</p>
+        </section>
       </div>
-
-      <nav class="menu" aria-label="Admin sections">
-        <button type="button" data-section="courses">Courses</button>
-        <button type="button" data-section="students">Students</button>
-        <button type="button" data-section="attendance">Attendance</button>
-        <button type="button" data-section="fees">Fees</button>
-        <button type="button" data-section="notices">Notices</button>
-        <button type="button" data-section="gallery">Gallery</button>
-        <button type="button" data-section="about">About</button>
-        <button type="button" data-section="student_history">Student History</button>
-        <button type="button" data-section="feedback">Feedback</button>
-      </nav>
-
-      <section id="contentSection" class="panel">
-        <h2>Dashboard</h2>
-        <p>ઉપરના વિભાગમાંથી વિકલ્પ પસંદ કરો.</p>
-      </section>
     </section>
   </main>
 
-  <footer>
-    <p>© SHREE BILESHWAR COMPUTER</p>
+  <footer class="site-footer">
+    © SHREE BILESHWAR COMPUTER CLASSES
   </footer>
+
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script>
+    if (window.lucide) lucide.createIcons();
+
+    const menuToggle = document.getElementById("menuToggle");
+    const dashboard = document.getElementById("dashboardSection");
+    const overlay = document.getElementById("sidebarOverlay");
+    const sidebar = document.getElementById("adminSidebar");
+
+    function closeSidebar() {
+      dashboard.classList.remove("sidebar-open");
+      menuToggle.setAttribute("aria-expanded", "false");
+    }
+
+    menuToggle.addEventListener("click", () => {
+      const isOpen = dashboard.classList.toggle("sidebar-open");
+      menuToggle.setAttribute("aria-expanded", String(isOpen));
+    });
+
+    overlay.addEventListener("click", closeSidebar);
+
+    sidebar.addEventListener("click", (event) => {
+      if (event.target.closest("[data-section]")) closeSidebar();
+    });
+  </script>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="supabase-config.js"></script>
