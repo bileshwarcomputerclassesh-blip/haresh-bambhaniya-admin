@@ -13,6 +13,9 @@ let activeSection = "";
 let editingId = null;
 let busy = false;
 
+const GALLERY_BUCKET = "class-gallery";
+const MAX_FILE_SIZE = 50 * 1024 * 1024;
+
 const recoveryLink =
   window.location.hash.includes("type=recovery") ||
   new URLSearchParams(window.location.search).get("type") === "recovery";
@@ -28,6 +31,7 @@ const sections = {
       { name: "fees", label: "Course Fees", type: "number" }
     ]
   },
+
   students: {
     title: "Students",
     table: "students",
@@ -45,12 +49,23 @@ const sections = {
       }
     ]
   },
+
   attendance: {
     title: "Attendance",
     table: "attendance",
     fields: [
-      { name: "student_id", label: "Student Database ID", type: "number", required: true },
-      { name: "attendance_date", label: "Date", type: "date", required: true },
+      {
+        name: "student_id",
+        label: "Student Database ID",
+        type: "number",
+        required: true
+      },
+      {
+        name: "attendance_date",
+        label: "Date",
+        type: "date",
+        required: true
+      },
       {
         name: "status",
         label: "Attendance",
@@ -60,26 +75,49 @@ const sections = {
       }
     ]
   },
+
   fees: {
     title: "Fees",
     table: "fees",
     fields: [
-      { name: "student_id", label: "Student Database ID", type: "number", required: true },
-      { name: "amount", label: "Total Fees", type: "number", required: true },
-      { name: "paid_amount", label: "Paid Amount", type: "number", required: true },
+      {
+        name: "student_id",
+        label: "Student Database ID",
+        type: "number",
+        required: true
+      },
+      {
+        name: "amount",
+        label: "Total Fees",
+        type: "number",
+        required: true
+      },
+      {
+        name: "paid_amount",
+        label: "Paid Amount",
+        type: "number",
+        required: true
+      },
       { name: "due_date", label: "Due Date", type: "date" },
       { name: "payment_date", label: "Payment Date", type: "date" },
       { name: "note", label: "Note" }
     ]
   },
+
   notices: {
     title: "Notices",
     table: "notices",
     fields: [
       { name: "title", label: "Notice Title", required: true },
-      { name: "message", label: "Notice Message", required: true, type: "textarea" }
+      {
+        name: "message",
+        label: "Notice Message",
+        required: true,
+        type: "textarea"
+      }
     ]
   },
+
   gallery: {
     title: "Gallery",
     table: "gallery",
@@ -95,22 +133,40 @@ const sections = {
       }
     ]
   },
+
   about: {
     title: "About",
     table: "about",
     fields: [
       { name: "title", label: "Title", required: true },
-      { name: "content", label: "Content", required: true, type: "textarea" }
+      {
+        name: "content",
+        label: "Content",
+        required: true,
+        type: "textarea"
+      }
     ]
   },
+
   student_history: {
     title: "Student History",
     table: "student_history",
     fields: [
-      { name: "student_id", label: "Student Database ID", type: "number", required: true },
-      { name: "description", label: "Description", required: true, type: "textarea" }
+      {
+        name: "student_id",
+        label: "Student Database ID",
+        type: "number",
+        required: true
+      },
+      {
+        name: "description",
+        label: "Description",
+        required: true,
+        type: "textarea"
+      }
     ]
   },
+
   feedback: {
     title: "Feedback",
     table: "feedback",
@@ -127,6 +183,8 @@ function showOnly(section) {
 }
 
 function setMessage(element, message, isError = false) {
+  if (!element) return;
+
   element.textContent = message;
   element.style.color = isError ? "#b91c1c" : "#166534";
 }
@@ -168,9 +226,12 @@ async function checkAdmin() {
   await loadSection(activeSection || "courses");
 }
 
+// LOGIN
+
 document.getElementById("loginForm").addEventListener("submit", async event => {
   event.preventDefault();
   if (busy) return;
+
   busy = true;
 
   const button = event.submitter;
@@ -191,12 +252,18 @@ document.getElementById("loginForm").addEventListener("submit", async event => {
 
     await checkAdmin();
   } catch (error) {
-    setMessage(loginMessage, error.message || "Login નિષ્ફળ થયું.", true);
+    setMessage(
+      loginMessage,
+      error.message || "Login નિષ્ફળ થયું.",
+      true
+    );
   } finally {
     busy = false;
     if (button) button.disabled = false;
   }
 });
+
+// FORGOT PASSWORD
 
 document.getElementById("forgotPasswordBtn").addEventListener("click", async () => {
   const email = document.getElementById("email").value.trim();
@@ -222,13 +289,20 @@ document.getElementById("forgotPasswordBtn").addEventListener("click", async () 
       "જો આ Email નોંધાયેલો છે, તો Password Reset માટે ઈમેલ તપાસો."
     );
   } catch (error) {
-    setMessage(loginMessage, error.message || "Reset Email મોકલી શકાયો નહીં.", true);
+    setMessage(
+      loginMessage,
+      error.message || "Reset Email મોકલી શકાયો નહીં.",
+      true
+    );
   }
 });
+
+// RESET PASSWORD
 
 document.getElementById("resetPasswordForm").addEventListener("submit", async event => {
   event.preventDefault();
   if (busy) return;
+
   busy = true;
 
   const button = event.submitter;
@@ -259,19 +333,28 @@ document.getElementById("resetPasswordForm").addEventListener("submit", async ev
 
     if (error) throw error;
 
-    setMessage(resetMessage, "પાસવર્ડ સફળતાપૂર્વક બદલાઈ ગયો. હવે નવા પાસવર્ડથી Login કરો.");
+    setMessage(
+      resetMessage,
+      "પાસવર્ડ સફળતાપૂર્વક બદલાઈ ગયો. હવે નવા પાસવર્ડથી Login કરો."
+    );
 
     await supabaseClient.auth.signOut();
     document.getElementById("resetPasswordForm").reset();
     showOnly("login");
     setMessage(loginMessage, "નવો પાસવર્ડ સેટ થયો છે. હવે Login કરો.");
   } catch (error) {
-    setMessage(resetMessage, error.message || "પાસવર્ડ બદલી શકાયો નહીં.", true);
+    setMessage(
+      resetMessage,
+      error.message || "પાસવર્ડ બદલી શકાયો નહીં.",
+      true
+    );
   } finally {
     busy = false;
     if (button) button.disabled = false;
   }
 });
+
+// LOGOUT
 
 logoutBtn.addEventListener("click", async () => {
   await supabaseClient.auth.signOut();
@@ -282,6 +365,8 @@ logoutBtn.addEventListener("click", async () => {
 document.querySelectorAll("[data-section]").forEach(button => {
   button.addEventListener("click", () => loadSection(button.dataset.section));
 });
+
+// CREATE FORM FIELD
 
 function createField(field, value = "") {
   const safeValue = escapeHTML(value);
@@ -294,17 +379,23 @@ function createField(field, value = "") {
     control = `<select name="${field.name}" ${required}>
       <option value="">પસંદ કરો</option>
       ${field.options.map(option =>
-        `<option value="${escapeHTML(option)}" ${String(value) === option ? "selected" : ""}>${escapeHTML(option)}</option>`
+        `<option value="${escapeHTML(option)}"
+          ${String(value) === option ? "selected" : ""}>
+          ${escapeHTML(option)}
+        </option>`
       ).join("")}
     </select>`;
   } else {
-    control = `<input name="${field.name}" type="${field.type || "text"}"
+    control = `<input name="${field.name}"
+      type="${field.type || "text"}"
       value="${safeValue}" ${required}
       ${field.type === "number" ? 'step="any"' : ""}>`;
   }
 
   return `<label>${escapeHTML(field.label)}${field.required ? " *" : ""}</label>${control}`;
 }
+
+// LOAD SECTION
 
 async function loadSection(key) {
   if (!sections[key]) return;
@@ -313,7 +404,9 @@ async function loadSection(key) {
   editingId = null;
 
   const config = sections[key];
-  contentSection.innerHTML = `<h2>${escapeHTML(config.title)}</h2><p>લોડ થઈ રહ્યું છે...</p>`;
+
+  contentSection.innerHTML =
+    `<h2>${escapeHTML(config.title)}</h2><p>લોડ થઈ રહ્યું છે...</p>`;
 
   const { data, error } = await supabaseClient
     .from(config.table)
@@ -322,12 +415,20 @@ async function loadSection(key) {
 
   if (error) {
     contentSection.innerHTML =
-      `<h2>${escapeHTML(config.title)}</h2><p>ડેટા લોડ કરવામાં સમસ્યા: ${escapeHTML(error.message)}</p>`;
+      `<h2>${escapeHTML(config.title)}</h2>
+       <p>ડેટા લોડ કરવામાં સમસ્યા: ${escapeHTML(error.message)}</p>`;
+
     statusMessage.textContent = "Database error";
     return;
   }
 
   statusMessage.textContent = "Database સાથે જોડાણ સફળ છે.";
+
+  // GALLERY માટે અલગ Upload UI
+  if (key === "gallery") {
+    renderGallery(data || []);
+    return;
+  }
 
   let html = `<h2>${escapeHTML(config.title)}</h2>`;
 
@@ -341,7 +442,10 @@ async function loadSection(key) {
   } else {
     html += '<div style="overflow-x:auto"><table><thead><tr>';
 
-    const keys = Object.keys(data[0]).filter(name => name !== "created_at" && name !== "updated_at");
+    const keys = Object.keys(data[0]).filter(
+      name => name !== "created_at" && name !== "updated_at"
+    );
+
     keys.forEach(name => {
       html += `<th>${escapeHTML(name)}</th>`;
     });
@@ -352,6 +456,7 @@ async function loadSection(key) {
 
     data.forEach(row => {
       html += "<tr>";
+
       keys.forEach(name => {
         html += `<td>${escapeHTML(row[name])}</td>`;
       });
@@ -372,11 +477,17 @@ async function loadSection(key) {
   contentSection.innerHTML = html;
 
   const addButton = document.getElementById("addRecordBtn");
-  if (addButton) addButton.addEventListener("click", () => renderForm(key));
+
+  if (addButton) {
+    addButton.addEventListener("click", () => renderForm(key));
+  }
 
   contentSection.querySelectorAll("[data-edit]").forEach(button => {
     button.addEventListener("click", () => {
-      const row = data.find(item => String(item.id) === button.dataset.edit);
+      const row = data.find(
+        item => String(item.id) === button.dataset.edit
+      );
+
       if (row) renderForm(key, row);
     });
   });
@@ -400,6 +511,379 @@ async function loadSection(key) {
   });
 }
 
+// GALLERY DISPLAY AND UPLOAD FORM
+
+function renderGallery(data) {
+  contentSection.innerHTML = `
+    <h2>Gallery</h2>
+
+    <div style="
+      border:1px solid #d8dee8;
+      border-radius:12px;
+      padding:16px;
+      margin:16px 0;
+      background:#fff;
+    ">
+      <h3>ફોટા અને વીડિયો અપલોડ કરો</h3>
+
+      <form id="galleryUploadForm">
+        <label for="galleryTitle">Title (વૈકલ્પિક)</label>
+        <input
+          id="galleryTitle"
+          name="galleryTitle"
+          type="text"
+          placeholder="ઉદાહરણ: Computer Lab"
+        >
+
+        <label for="galleryFiles" style="display:block;margin-top:14px">
+          મોબાઇલમાંથી ફોટા અથવા વીડિયો પસંદ કરો
+        </label>
+
+        <input
+          id="galleryFiles"
+          name="galleryFiles"
+          type="file"
+          accept="image/*,video/*"
+          multiple
+          required
+          style="display:block;width:100%;margin:12px 0"
+        >
+
+        <p style="font-size:13px;color:#64748b">
+          એક સાથે ઘણી ફાઇલો પસંદ કરી શકો છો. દરેક ફાઇલ વધુમાં વધુ 50 MB.
+        </p>
+
+        <button type="submit" id="galleryUploadBtn">
+          Upload Files
+        </button>
+
+        <p id="galleryUploadMessage" role="status" aria-live="polite"></p>
+      </form>
+    </div>
+
+    <h3>અપલોડ થયેલી ફાઇલો</h3>
+
+    <div id="galleryItems" style="
+      display:grid;
+      grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
+      gap:16px;
+    ">
+      ${data.length === 0
+        ? "<p>હજુ કોઈ ફોટો કે વીડિયો અપલોડ થયો નથી.</p>"
+        : data.map(row => `
+          <article style="
+            border:1px solid #d8dee8;
+            border-radius:10px;
+            padding:10px;
+            min-width:0;
+            background:#fff;
+          ">
+            <div
+              data-preview="${escapeHTML(row.id)}"
+              style="
+                min-height:100px;
+                display:flex;
+                align-items:center;
+                justify-content:center;
+                overflow:hidden;
+                background:#f1f5f9;
+                border-radius:8px;
+              "
+            >ફાઇલ લોડ થઈ રહી છે...</div>
+
+            <p style="overflow-wrap:anywhere;font-weight:600">
+              ${escapeHTML(row.title || "Untitled")}
+            </p>
+
+            <p style="font-size:13px;color:#64748b">
+              ${escapeHTML(row.media_type || "")}
+            </p>
+
+            <button
+              type="button"
+              data-gallery-edit="${escapeHTML(row.id)}"
+            >Edit</button>
+
+            <button
+              type="button"
+              data-gallery-delete="${escapeHTML(row.id)}"
+            >Delete</button>
+          </article>
+        `).join("")
+      }
+    </div>
+
+    <div id="recordFormContainer"></div>
+  `;
+
+  // Private bucket માટે signed URL બનાવો.
+  data.forEach(async row => {
+    const previewContainer = Array.from(
+      contentSection.querySelectorAll("[data-preview]")
+    ).find(element => element.dataset.preview === String(row.id));
+
+    if (!previewContainer) return;
+
+    try {
+      let mediaUrl = row.media_url;
+
+      if (!mediaUrl) {
+        previewContainer.textContent = "ફાઇલનો URL ઉપલબ્ધ નથી.";
+        return;
+      }
+
+      // જૂના external URLs ને પણ સપોર્ટ કરો.
+      if (!/^https?:\/\//i.test(mediaUrl)) {
+        const { data: signedData, error } =
+          await supabaseClient.storage
+            .from(GALLERY_BUCKET)
+            .createSignedUrl(mediaUrl, 3600);
+
+        if (error) throw error;
+
+        mediaUrl = signedData.signedUrl;
+      }
+
+      // Section બદલાઈ ગયું હોય તો કંઈ ન કરો.
+      if (!previewContainer.isConnected) return;
+
+      if (row.media_type === "video") {
+        previewContainer.innerHTML = `
+          <video
+            controls
+            playsinline
+            preload="metadata"
+            style="width:100%;max-height:220px;object-fit:contain"
+          ></video>
+        `;
+
+        previewContainer.querySelector("video").src = mediaUrl;
+      } else {
+        previewContainer.innerHTML = `
+          <img
+            alt="${escapeHTML(row.title || "Gallery photo")}"
+            style="width:100%;max-height:220px;object-fit:contain"
+          >
+        `;
+
+        previewContainer.querySelector("img").src = mediaUrl;
+      }
+    } catch (error) {
+      if (previewContainer.isConnected) {
+        previewContainer.textContent =
+          "Preview ઉપલબ્ધ નથી: " + error.message;
+      }
+    }
+  });
+
+  // MULTIPLE FILE UPLOAD
+  document.getElementById("galleryUploadForm")
+    .addEventListener("submit", async event => {
+      event.preventDefault();
+
+      const form = event.currentTarget;
+      const input = document.getElementById("galleryFiles");
+      const titleInput = document.getElementById("galleryTitle");
+      const message = document.getElementById("galleryUploadMessage");
+      const uploadButton = document.getElementById("galleryUploadBtn");
+
+      const files = Array.from(input.files || []);
+      const titlePrefix = titleInput.value.trim();
+
+      if (files.length === 0) {
+        setMessage(message, "પહેલાં ફાઇલો પસંદ કરો.", true);
+        return;
+      }
+
+      // Upload પહેલાં તમામ ફાઇલો તપાસો.
+      for (const file of files) {
+        if (!file.type.startsWith("image/") &&
+            !file.type.startsWith("video/")) {
+          setMessage(
+            message,
+            `${file.name}: આ ફોટો અથવા વીડિયો ફાઇલ નથી.`,
+            true
+          );
+          return;
+        }
+
+        if (file.size > MAX_FILE_SIZE) {
+          setMessage(
+            message,
+            `${file.name}: ફાઇલ 50 MB કરતાં મોટી છે.`,
+            true
+          );
+          return;
+        }
+      }
+
+      uploadButton.disabled = true;
+      input.disabled = true;
+      setMessage(message, "ફાઇલો અપલોડ થઈ રહી છે...");
+
+      let successCount = 0;
+      let failedCount = 0;
+      const errors = [];
+
+      try {
+        const {
+          data: { user },
+          error: userError
+        } = await supabaseClient.auth.getUser();
+
+        if (userError) throw userError;
+
+        if (!user) {
+          throw new Error("ફરીથી Admin Login કરો.");
+        }
+
+        for (const file of files) {
+          let storagePath = null;
+
+          try {
+            setMessage(
+              message,
+              `અપલોડ થઈ રહ્યું છે: ${successCount + failedCount + 1}/${files.length} — ${file.name}`
+            );
+
+            const safeFileName = file.name.replace(/[^\w.\-]+/g, "_");
+            const uniqueName =
+              `${Date.now()}-${crypto.randomUUID()}-${safeFileName}`;
+
+            storagePath = `${user.id}/${uniqueName}`;
+
+            const { error: uploadError } = await supabaseClient.storage
+              .from(GALLERY_BUCKET)
+              .upload(storagePath, file, {
+                cacheControl: "3600",
+                upsert: false,
+                contentType: file.type
+              });
+
+            if (uploadError) throw uploadError;
+
+            const mediaType = file.type.startsWith("video/")
+              ? "video"
+              : "photo";
+
+            const title = titlePrefix
+              ? `${titlePrefix} - ${file.name}`
+              : file.name;
+
+            const { error: insertError } = await supabaseClient
+              .from("gallery")
+              .insert({
+                title,
+                media_url: storagePath,
+                media_type: mediaType
+              });
+
+            if (insertError) {
+              // Database insert નિષ્ફળ જાય તો orphan file દૂર કરવાનો પ્રયાસ.
+              await supabaseClient.storage
+                .from(GALLERY_BUCKET)
+                .remove([storagePath]);
+
+              throw insertError;
+            }
+
+            successCount++;
+          } catch (error) {
+            failedCount++;
+            errors.push(`${file.name}: ${error.message}`);
+          }
+        }
+
+        if (successCount > 0) {
+          alert(
+            `${successCount} ફાઇલ સફળતાપૂર્વક અપલોડ થઈ.` +
+            (failedCount > 0
+              ? ` ${failedCount} ફાઇલ અપલોડ ન થઈ.`
+              : "")
+          );
+
+          await loadSection("gallery");
+        } else {
+          setMessage(
+            message,
+            "અપલોડ નિષ્ફળ થયું: " + errors.join(" | "),
+            true
+          );
+        }
+
+        if (failedCount > 0) {
+          console.error("Gallery upload errors:", errors);
+          statusMessage.textContent =
+            `${successCount} સફળ, ${failedCount} નિષ્ફળ.`;
+        }
+      } catch (error) {
+        setMessage(
+          message,
+          error.message || "અપલોડ કરવામાં સમસ્યા આવી.",
+          true
+        );
+      } finally {
+        uploadButton.disabled = false;
+        input.disabled = false;
+      }
+    });
+
+  // EDIT GALLERY RECORD
+  contentSection.querySelectorAll("[data-gallery-edit]").forEach(button => {
+    button.addEventListener("click", () => {
+      const row = data.find(
+        item => String(item.id) === button.dataset.galleryEdit
+      );
+
+      if (row) renderForm("gallery", row);
+    });
+  });
+
+  // DELETE GALLERY RECORD AND ITS PRIVATE STORAGE FILE
+  contentSection.querySelectorAll("[data-gallery-delete]").forEach(button => {
+    button.addEventListener("click", async () => {
+      const row = data.find(
+        item => String(item.id) === button.dataset.galleryDelete
+      );
+
+      if (!row) return;
+
+      if (!confirm("શું આ Gallery ફાઇલ કાયમ માટે ડિલીટ કરવી છે?")) {
+        return;
+      }
+
+      button.disabled = true;
+
+      try {
+        const mediaUrl = row.media_url;
+
+        // માત્ર Storage path હોય ત્યારે જ Bucket માંથી ફાઇલ દૂર કરો.
+        if (mediaUrl && !/^https?:\/\//i.test(mediaUrl)) {
+          const { error: storageError } = await supabaseClient.storage
+            .from(GALLERY_BUCKET)
+            .remove([mediaUrl]);
+
+          if (storageError) throw storageError;
+        }
+
+        const { error: deleteError } = await supabaseClient
+          .from("gallery")
+          .delete()
+          .eq("id", row.id);
+
+        if (deleteError) throw deleteError;
+
+        await loadSection("gallery");
+      } catch (error) {
+        alert("ડિલીટ કરવામાં સમસ્યા: " + error.message);
+        button.disabled = false;
+      }
+    });
+  });
+}
+
+// ADD / EDIT FORM FOR OTHER SECTIONS AND GALLERY METADATA
+
 function renderForm(key, row = null) {
   const config = sections[key];
   editingId = row ? row.id : null;
@@ -410,7 +894,11 @@ function renderForm(key, row = null) {
   container.innerHTML = `
     <form id="recordForm">
       <h3>${row ? "રેકોર્ડ Edit કરો" : "નવો રેકોર્ડ ઉમેરો"}</h3>
-      ${config.fields.map(field => createField(field, row ? row[field.name] ?? "" : "")).join("")}
+
+      ${config.fields.map(field =>
+        createField(field, row ? row[field.name] ?? "" : "")
+      ).join("")}
+
       <button type="submit">Save</button>
       <button type="button" id="cancelFormBtn">Cancel</button>
       <p id="formMessage" role="status"></p>
@@ -432,6 +920,7 @@ function renderForm(key, row = null) {
 
     config.fields.forEach(field => {
       const raw = formData.get(field.name);
+
       if (raw === "" || raw === null) {
         record[field.name] = null;
       } else if (field.type === "number") {
@@ -463,11 +952,18 @@ function renderForm(key, row = null) {
       setMessage(message, "સેવ થઈ ગયું.");
       await loadSection(key);
     } catch (error) {
-      setMessage(message, error.message || "સેવ કરવામાં સમસ્યા આવી.", true);
+      setMessage(
+        message,
+        error.message || "સેવ કરવામાં સમસ્યા આવી.",
+        true
+      );
+
       saveButton.disabled = false;
     }
   });
 }
+
+// AUTH STATE CHANGES
 
 supabaseClient.auth.onAuthStateChange((event, session) => {
   if (event === "PASSWORD_RECOVERY" || (recoveryLink && session)) {
@@ -485,8 +981,11 @@ supabaseClient.auth.onAuthStateChange((event, session) => {
   }
 });
 
+// START APP
+
 async function startApp() {
-  const { data: { session }, error } = await supabaseClient.auth.getSession();
+  const { data: { session }, error } =
+    await supabaseClient.auth.getSession();
 
   if (error || !session) {
     if (recoveryLink) {
@@ -499,6 +998,7 @@ async function startApp() {
     } else {
       showOnly("login");
     }
+
     return;
   }
 
