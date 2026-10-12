@@ -899,6 +899,12 @@ function renderForm(key, row = null) {
         createField(field, row ? row[field.name] ?? "" : "")
       ).join("")}
 
+      ${key === "students" && !row ? `
+        <label>Student Login Password *</label>
+        <input name="student_password" type="password" minlength="8" autocomplete="new-password" required>
+        <small>વિદ્યાર્થી આ Password વડે APK માં Login કરશે. ઓછામાં ઓછા 8 અક્ષર.</small>
+      ` : ""}
+
       <button type="submit">Save</button>
       <button type="button" id="cancelFormBtn">Cancel</button>
       <p id="formMessage" role="status"></p>
@@ -930,24 +936,65 @@ function renderForm(key, row = null) {
       }
     });
 
+    const studentPassword = key === "students" && editingId === null
+      ? String(formData.get("student_password") || "")
+      : "";
+
     const saveButton = form.querySelector('[type="submit"]');
     saveButton.disabled = true;
 
     try {
-      let result;
+      if (key === "students" && editingId === null) {
+        const { data: { session }, error: sessionError } =
+          await supabaseClient.auth.getSession();
+        if (sessionError || !session) {
+          throw new Error("Admin Login સમાપ્ત થયું છે. ફરી Login કરો.");
+        }
 
-      if (editingId !== null) {
-        result = await supabaseClient
-          .from(config.table)
-          .update(record)
-          .eq("id", editingId);
+        const { error } = await supabaseClient.functions.invoke(
+          "create-student-account",
+          {
+            body: {
+              student_id: String(record.student_id || "").trim(),
+              full_name: String(record.full_name || "").trim(),
+              phone: record.phone,
+              course_id: record.course_id,
+              admission_date: record.admission_date,
+              status: record.status || "active",
+              password: studentPassword
+            }
+          }
+        );
+        if (error) throw error;
       } else {
-        result = await supabaseClient
-          .from(config.table)
-          .insert(record);
-      }
+        let result;
 
-      if (result.error) throw result.error;
+        if (editingId !== null) {
+          result = await supabaseClient
+            .from(config.table)
+            .update(record)
+            .eq("id", editingId);
+        } else {
+          result = await supabaseClient
+            .from(config.table)
+            .insert(record);
+        }
+
+        if (result.error) throw result.error;
+
+        if (key === "students" && editingId !== null && row?.auth_user_id) {
+          const { error: profileError } = await supabaseClient
+            .from("profiles")
+            .update({
+              student_id: String(record.student_id || "").trim(),
+              full_name: String(record.full_name || "").trim()
+            })
+            .eq("id", row.auth_user_id);
+          if (profileError) {
+            throw new Error("વિદ્યાર્થીની માહિતી સેવ થઈ, પરંતુ Login Profile અપડેટ ન થયું: " + profileError.message);
+          }
+        }
+      }
 
       setMessage(message, "સેવ થઈ ગયું.");
       await loadSection(key);
