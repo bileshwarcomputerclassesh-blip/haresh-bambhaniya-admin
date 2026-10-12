@@ -974,6 +974,13 @@ function renderForm(key, row = null) {
             .from(config.table)
             .update(record)
             .eq("id", editingId);
+        } else if (key === "courses") {
+          // કોર્સ સેવ થયા પછી Supabase દ્વારા બનાવેલી સાચી ID મેળવો.
+          result = await supabaseClient
+            .from(config.table)
+            .insert(record)
+            .select("id")
+            .single();
         } else {
           result = await supabaseClient
             .from(config.table)
@@ -996,8 +1003,16 @@ function renderForm(key, row = null) {
         }
       }
 
-      setMessage(message, "સેવ થઈ ગયું.");
-      await loadSection(key);
+      if (key === "courses" && editingId === null) {
+        const savedCourseId = result.data?.id;
+        await loadSection(key);
+        if (savedCourseId !== undefined && savedCourseId !== null) {
+          alert("કોર્સ સફળતાપૂર્વક સેવ થયો. Course Database ID: " + savedCourseId);
+        }
+      } else {
+        setMessage(message, "સેવ થઈ ગયું.");
+        await loadSection(key);
+      }
     } catch (error) {
       setMessage(
         message,
