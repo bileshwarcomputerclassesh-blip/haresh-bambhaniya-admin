@@ -39,7 +39,7 @@ const sections = {
       { name: "student_id", label: "Student ID", required: true },
       { name: "full_name", label: "Student Name", required: true },
       { name: "phone", label: "Phone" },
-      { name: "course_id", label: "Course Database ID", type: "number" },
+      { name: "course_id", label: "કોર્સ પસંદ કરો", type: "course-select" },
       { name: "admission_date", label: "Admission Date", type: "date" },
       {
         name: "status",
@@ -884,20 +884,44 @@ function renderGallery(data) {
 
 // ADD / EDIT FORM FOR OTHER SECTIONS AND GALLERY METADATA
 
-function renderForm(key, row = null) {
+async function renderForm(key, row = null) {
   const config = sections[key];
   editingId = row ? row.id : null;
 
   const container = document.getElementById("recordFormContainer");
   if (!container) return;
 
+  let courseOptions = [];
+  if (key === "students") {
+    const { data: courses, error: coursesError } = await supabaseClient
+      .from("courses")
+      .select("id, name, duration, fees")
+      .order("name", { ascending: true });
+
+    if (coursesError) {
+      container.innerHTML = `<p>કોર્સ લોડ થઈ શક્યા નથી: ${escapeHTML(coursesError.message)}</p>`;
+      return;
+    }
+    courseOptions = courses || [];
+  }
+
   container.innerHTML = `
     <form id="recordForm">
       <h3>${row ? "રેકોર્ડ Edit કરો" : "નવો રેકોર્ડ ઉમેરો"}</h3>
 
-      ${config.fields.map(field =>
-        createField(field, row ? row[field.name] ?? "" : "")
-      ).join("")}
+      ${config.fields.map(field => {
+        const value = row ? row[field.name] ?? "" : "";
+        if (key === "students" && field.name === "course_id") {
+          return `<label>${escapeHTML(field.label)} *</label>
+            <select name="course_id" required>
+              <option value="">કોર્સ પસંદ કરો</option>
+              ${courseOptions.map(course => `<option value="${course.id}" ${String(value) === String(course.id) ? "selected" : ""}>${escapeHTML(course.name)} (ID: ${course.id})${course.duration ? " — " + escapeHTML(course.duration) : ""}</option>`).join("")}
+            </select>
+            ${courseOptions.length === 0 ? '<small>પહેલાં Courses વિભાગમાં કોર્સ ઉમેરો.</small>' : ""}
+          `;
+        }
+        return createField(field, value);
+      }).join("")}
 
       ${key === "students" && !row ? `
         <label>Student Login Password *</label>
