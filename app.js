@@ -895,6 +895,7 @@ async function renderForm(key, row = null) {
 
   let courseOptions = [];
   let attendanceStudents = [];
+  let feesStudents = [];
   if (key === "students") {
     const { data: courses, error: coursesError } = await supabaseClient
       .from("courses")
@@ -908,7 +909,7 @@ async function renderForm(key, row = null) {
     courseOptions = courses || [];
   }
 
-  if (key === "attendance") {
+  if (key === "attendance" || key === "fees") {
     const { data: students, error: studentsError } = await supabaseClient
       .from("students")
       .select("id, student_id, full_name, status")
@@ -917,7 +918,9 @@ async function renderForm(key, row = null) {
       container.innerHTML = "<p>વિદ્યાર્થીઓ લોડ થઈ શક્યા નથી: " + escapeHTML(studentsError.message) + "</p>";
       return;
     }
-    attendanceStudents = (students || []).filter(student => student.status !== "inactive");
+    const activeStudents = (students || []).filter(student => student.status !== "inactive");
+    attendanceStudents = activeStudents;
+    feesStudents = activeStudents;
   }
 
   container.innerHTML = `
@@ -935,8 +938,9 @@ async function renderForm(key, row = null) {
             ${courseOptions.length === 0 ? '<small>પહેલાં Courses વિભાગમાં કોર્સ ઉમેરો.</small>' : ""}
           `;
         }
-        if (key === "attendance" && field.name === "student_id") {
-          const options = attendanceStudents.map(student => {
+        if ((key === "attendance" || key === "fees") && field.name === "student_id") {
+          const studentOptions = key === "fees" ? feesStudents : attendanceStudents;
+          const options = studentOptions.map(student => {
             const studentCode = student.student_id ? "Student ID: " + escapeHTML(student.student_id) : "Student ID નથી";
             return '<option value="' + escapeHTML(student.id) + '"' +
               (String(value) === String(student.id) ? " selected" : "") + ">" +
@@ -946,8 +950,8 @@ async function renderForm(key, row = null) {
           return '<label>' + escapeHTML(field.label) + ' *</label>' +
             '<select name="student_id" required><option value="">વિદ્યાર્થી પસંદ કરો</option>' +
             options + '</select>' +
-            '<small>પસંદ કરેલા વિદ્યાર્થીની Database ID attendance માં સેવ થશે.</small>' +
-            (attendanceStudents.length === 0 ? '<small>હાલ કોઈ Active વિદ્યાર્થી નથી. Students વિભાગમાં જઈ વિદ્યાર્થી ઉમેરો અથવા Status તપાસો.</small>' : "");
+            '<small>પસંદ કરેલા વિદ્યાર્થીની Database ID ' + (key === "fees" ? 'fees' : 'attendance') + ' માં સેવ થશે.</small>' +
+            (studentOptions.length === 0 ? '<small>હાલ કોઈ Active વિદ્યાર્થી નથી. Students વિભાગમાં જઈ વિદ્યાર્થી ઉમેરો અથવા Status તપાસો.</small>' : "");
         }
         return createField(field, value);
       }).join("")}
