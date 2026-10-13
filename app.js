@@ -28,7 +28,7 @@ const sections = {
       { name: "name", label: "Course Name", required: true },
       { name: "description", label: "Description" },
       { name: "duration", label: "Duration" },
-      { name: "fees", label: "Course Fees", type: "number" }
+      { name: "fees", label: "Course Fees (₹)", type: "number", required: true }
     ]
   },
 
@@ -910,7 +910,7 @@ async function renderForm(key, row = null) {
       <h3>${row ? "રેકોર્ડ Edit કરો" : "નવો રેકોર્ડ ઉમેરો"}</h3>
 
       ${config.fields.map(field => {
-        const value = row ? row[field.name] ?? "" : "";
+        const value = row ? row[field.name] ?? "" : (key === "courses" && field.name === "fees" ? "0" : "");
         if (key === "students" && field.name === "course_id") {
           return `<label>${escapeHTML(field.label)} *</label>
             <select name="course_id" required>
@@ -952,9 +952,12 @@ async function renderForm(key, row = null) {
       const raw = formData.get(field.name);
 
       if (raw === "" || raw === null) {
-        record[field.name] = null;
+        record[field.name] = field.type === "number" && key === "courses" && field.name === "fees" ? 0 : null;
       } else if (field.type === "number") {
-        record[field.name] = Number(raw);
+        const numericValue = Number(raw);
+        if (!Number.isFinite(numericValue)) throw new Error(field.label + " માટે સાચી સંખ્યા દાખલ કરો.");
+        if (key === "courses" && field.name === "fees" && numericValue < 0) throw new Error("Course Fee 0 અથવા તેનાથી વધુ હોવી જોઈએ.");
+        record[field.name] = numericValue;
       } else {
         record[field.name] = raw;
       }
