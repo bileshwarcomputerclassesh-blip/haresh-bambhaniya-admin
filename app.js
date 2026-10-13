@@ -28,7 +28,7 @@ const sections = {
       { name: "name", label: "Course Name", required: true },
       { name: "description", label: "Description" },
       { name: "duration", label: "Duration" },
-      { name: "fees", label: "Course Fees (₹)", type: "number", required: true }
+      { name: "fees", label: "Course Fees (₹)", type: "text", inputmode: "decimal", required: true }
     ]
   },
 
@@ -388,8 +388,10 @@ function createField(field, value = "") {
   } else {
     control = `<input name="${field.name}"
       type="${field.type || "text"}"
+      ${field.inputmode ? `inputmode="${field.inputmode}"` : ""}
       value="${safeValue}" ${required}
-      ${field.type === "number" ? 'step="any"' : ""}>`;
+      ${field.type === "number" ? 'step="any"' : ""}
+      ${field.name === "fees" ? 'placeholder="ઉદાહરણ: 2500" autocomplete="off"' : ""}>`;
   }
 
   return `<label>${escapeHTML(field.label)}${field.required ? " *" : ""}</label>${control}`;
@@ -953,8 +955,8 @@ async function renderForm(key, row = null) {
 
       if (raw === "" || raw === null) {
         record[field.name] = field.type === "number" && key === "courses" && field.name === "fees" ? 0 : null;
-      } else if (field.type === "number") {
-        const numericValue = Number(raw);
+      } else if (field.type === "number" || (key === "courses" && field.name === "fees")) {
+        const numericValue = Number(String(raw).trim());
         if (!Number.isFinite(numericValue)) throw new Error(field.label + " માટે સાચી સંખ્યા દાખલ કરો.");
         if (key === "courses" && field.name === "fees" && numericValue < 0) throw new Error("Course Fee 0 અથવા તેનાથી વધુ હોવી જોઈએ.");
         record[field.name] = numericValue;
