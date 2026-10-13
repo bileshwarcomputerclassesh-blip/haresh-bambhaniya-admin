@@ -575,3 +575,22 @@ tr:hover td { background:rgba(34,211,238,.035); }
   .dashboard-layout { gap:0; }
   .sidebar { position:sticky; top:0; height:calc(100vh - 140px); overflow-y:auto; }
 }
+
+
+/* Institute brand mark: navy, royal blue and gold */
+.brand-icon.institute-logo {
+  width: 52px; height: 52px; padding: 2px; border-radius: 50%;
+  background: #0b1736; border: 1px solid #e7bd55;
+  box-shadow: 0 0 22px rgba(231, 189, 85, .18);
+}
+.brand-icon.institute-logo svg, .login-emblem.institute-login-logo svg {
+  width: 100%; height: 100%; stroke: none;
+}
+.login-emblem.institute-login-logo {
+  width: 78px; height: 78px; padding: 3px; border-radius: 50%;
+  background: #0b1736; border: 1px solid #e7bd55;
+  box-shadow: 0 0 25px rgba(231, 189, 85, .16);
+}
+@media (max-width:760px) {
+  .brand-icon.institute-logo { width: 43px; height: 43px; }
+}
