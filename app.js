@@ -894,6 +894,7 @@ async function renderForm(key, row = null) {
   if (!container) return;
 
   let courseOptions = [];
+  let attendanceStudents = [];
   if (key === "students") {
     const { data: courses, error: coursesError } = await supabaseClient
       .from("courses")
@@ -905,6 +906,18 @@ async function renderForm(key, row = null) {
       return;
     }
     courseOptions = courses || [];
+  }
+
+  if (key === "attendance") {
+    const { data: students, error: studentsError } = await supabaseClient
+      .from("students")
+      .select("id, student_id, full_name, status")
+      .order("full_name", { ascending: true });
+    if (studentsError) {
+      container.innerHTML = "<p>વિદ્યાર્થીઓ લોડ થઈ શક્યા નથી: " + escapeHTML(studentsError.message) + "</p>";
+      return;
+    }
+    attendanceStudents = (students || []).filter(student => student.status !== "inactive");
   }
 
   container.innerHTML = `
@@ -921,6 +934,20 @@ async function renderForm(key, row = null) {
             </select>
             ${courseOptions.length === 0 ? '<small>પહેલાં Courses વિભાગમાં કોર્સ ઉમેરો.</small>' : ""}
           `;
+        }
+        if (key === "attendance" && field.name === "student_id") {
+          const options = attendanceStudents.map(student => {
+            const studentCode = student.student_id ? "Student ID: " + escapeHTML(student.student_id) : "Student ID નથી";
+            return '<option value="' + escapeHTML(student.id) + '"' +
+              (String(value) === String(student.id) ? " selected" : "") + ">" +
+              escapeHTML(student.full_name || "નામ નથી") + " — " + studentCode +
+              " — Database ID: " + escapeHTML(student.id) + "</option>";
+          }).join("");
+          return '<label>' + escapeHTML(field.label) + ' *</label>' +
+            '<select name="student_id" required><option value="">વિદ્યાર્થી પસંદ કરો</option>' +
+            options + '</select>' +
+            '<small>પસંદ કરેલા વિદ્યાર્થીની Database ID attendance માં સેવ થશે.</small>' +
+            (attendanceStudents.length === 0 ? '<small>હાલ કોઈ Active વિદ્યાર્થી નથી. Students વિભાગમાં જઈ વિદ્યાર્થી ઉમેરો અથવા Status તપાસો.</small>' : "");
         }
         return createField(field, value);
       }).join("")}
