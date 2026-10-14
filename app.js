@@ -512,7 +512,7 @@ async function loadSection(key) {
     html += '<div style="overflow-x:auto"><table><thead><tr>';
 
     const keys = Object.keys(data[0]).filter(
-      name => name !== "created_at" && name !== "updated_at"
+      name => name !== "updated_at" && (name !== "created_at" || key === "desktop_orders")
     );
 
     keys.forEach(name => {
