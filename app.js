@@ -277,10 +277,24 @@ async function checkAdmin() {
     .eq("id", session.user.id)
     .maybeSingle();
 
-  if (error || !profile || profile.role !== "admin") {
+  if (error) {
+    showOnly("login");
+    setMessage(
+      loginMessage,
+      "Admin પ્રોફાઇલ તપાસવામાં Database error: " + error.message,
+      true
+    );
+    return;
+  }
+
+  if (!profile || profile.role !== "admin") {
     await supabaseClient.auth.signOut();
     showOnly("login");
-    setMessage(loginMessage, "આ એકાઉન્ટને Admin પરવાનગી નથી.", true);
+    setMessage(
+      loginMessage,
+      "Login સફળ થયું, પરંતુ આ Email માટે profiles માં role = admin મળ્યો નથી. Supabase માં સાચા Admin એકાઉન્ટની ID તપાસો.",
+      true
+    );
     return;
   }
 
