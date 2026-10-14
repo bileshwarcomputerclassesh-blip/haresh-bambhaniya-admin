@@ -1078,7 +1078,7 @@ async function renderForm(key, row = null) {
           if (file.size > 10 * 1024 * 1024) throw new Error("ફોટો 10 MB કરતાં નાનો હોવો જોઈએ.");
           const { data: { user }, error: userError } = await supabaseClient.auth.getUser();
           if (userError || !user) throw new Error("Admin Login ફરી કરો.");
-          const path = `${user.id}/${Date.now()}-${crypto.randomUUID()}-${file.name.replace(/[^\\w.\\-]+/g, "_")}`;
+          const path = `${user.id}/${Date.now()}-${crypto.randomUUID()}-${file.name.replace(/[^\w.\-]+/g, "_")}`;
           const { error: uploadError } = await supabaseClient.storage.from("public-content").upload(path, file, { upsert: false, contentType: file.type });
           if (uploadError) throw uploadError;
           record[field.name] = supabaseClient.storage.from("public-content").getPublicUrl(path).data.publicUrl;
