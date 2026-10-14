@@ -953,7 +953,7 @@ function renderGallery(data) {
 
 // ADD / EDIT FORM FOR OTHER SECTIONS AND GALLERY METADATA
 
-async function renderForm(key, row = null) {
+async async function renderForm(key, row = null) {
   const config = sections[key];
   editingId = row ? row.id : null;
 
@@ -1048,7 +1048,8 @@ async function renderForm(key, row = null) {
     const formData = new FormData(form);
     const record = {};
 
-    config.fields.forEach(field => {
+    try {
+      config.fields.forEach(field => {
       const raw = formData.get(field.name);
 
       if (raw === "" || raw === null) {
@@ -1061,7 +1062,11 @@ async function renderForm(key, row = null) {
       } else {
         record[field.name] = raw;
       }
-    });
+      });
+    } catch (validationError) {
+      message.textContent = validationError.message || "માહિતી તપાસવામાં ભૂલ આવી.";
+      return;
+    }
 
     const studentPassword = key === "students" && editingId === null
       ? String(formData.get("student_password") || "")
@@ -1079,9 +1084,9 @@ async function renderForm(key, row = null) {
           const { data: { user }, error: userError } = await supabaseClient.auth.getUser();
           if (userError || !user) throw new Error("Admin Login ફરી કરો.");
           const path = `${user.id}/${Date.now()}-${crypto.randomUUID()}-${file.name.replace(/[^\w.\-]+/g, "_")}`;
-          const { error: uploadError } = await supabaseClient.storage.from("public-content").upload(path, file, { upsert: false, contentType: file.type });
+          const { error: uploadError } = await supabaseClient.storage.from("class-gallery").upload(path, file, { upsert: false, contentType: file.type });
           if (uploadError) throw uploadError;
-          record[field.name] = supabaseClient.storage.from("public-content").getPublicUrl(path).data.publicUrl;
+          record[field.name] = supabaseClient.storage.from("class-gallery").getPublicUrl(path).data.publicUrl;
         }
       }
 
