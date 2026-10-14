@@ -25,10 +25,73 @@ const sections = {
     title: "Courses",
     table: "courses",
     fields: [
-      { name: "name", label: "Course Name", required: true },
-      { name: "description", label: "Description" },
+      { name: "name", label: "કોર્સનું નામ", required: true },
+      { name: "image_url", label: "કોર્સનો ફોટો", type: "image" },
+      { name: "description", label: "વર્ણન", type: "textarea" },
       { name: "duration", label: "Duration" },
       { name: "fees", label: "Course Fees (₹)", type: "text", inputmode: "decimal", required: true }
+    ]
+  },
+
+
+  learning_info: {
+    title: "ભણતરની માહિતી", table: "learning_info",
+    fields: [
+      { name: "image_url", label: "ફોટો અપલોડ", type: "image" },
+      { name: "description", label: "વર્ણન", type: "textarea", required: true }
+    ]
+  },
+  farmer_portal: {
+    title: "ખેડૂત પોર્ટલ", table: "farmer_portal",
+    fields: [
+      { name: "image_url", label: "ફોટો અપલોડ", type: "image" },
+      { name: "description", label: "વર્ણન", type: "textarea", required: true }
+    ]
+  },
+  job_posts: {
+    title: "સરકારી નોકરી ભરતી", table: "job_posts",
+    fields: [
+      { name: "title", label: "ભરતીનું નામ", required: true },
+      { name: "image_url", label: "ફોટો અપલોડ", type: "image" },
+      { name: "description", label: "વર્ણન", type: "textarea", required: true },
+      { name: "link", label: "લિંક", type: "url" },
+      { name: "category", label: "કેટેગરી", required: true }
+    ]
+  },
+  info_entries: {
+    title: "માહિતી", table: "info_entries",
+    fields: [{ name: "description", label: "માહિતી", type: "textarea", required: true }]
+  },
+  site_updates: {
+    title: "અપડેટ", table: "site_updates",
+    fields: [
+      { name: "update_date", label: "તારીખ", type: "date", required: true },
+      { name: "weekday", label: "વાર", required: true },
+      { name: "update_text", label: "અપડેટ લખાણ", type: "textarea", required: true }
+    ]
+  },
+  legal_services: {
+    title: "વકીલની સેવાઓ", table: "legal_services",
+    fields: [{ name: "information", label: "માહિતી", type: "textarea", required: true }]
+  },
+  desktop_products: {
+    title: "ડેસ્કટોપ વેચાણ", table: "desktop_products",
+    fields: [
+      { name: "image_url", label: "પ્રોડક્ટનો ફોટો", type: "image" },
+      { name: "product_name", label: "પ્રોડક્ટનું નામ", required: true },
+      { name: "description", label: "વર્ણન", type: "textarea", required: true },
+      { name: "price", label: "કિંમત (₹)", type: "number", required: true }
+    ]
+  },
+  desktop_orders: {
+    title: "ઓર્ડર લિસ્ટ", table: "desktop_orders",
+    fields: [
+      { name: "customer_name", label: "ગ્રાહકનું નામ", required: true },
+      { name: "phone", label: "મોબાઇલ નંબર", required: true },
+      { name: "address", label: "સરનામું", type: "textarea", required: true },
+      { name: "product_name", label: "ઓર્ડર કરેલી વસ્તુ", required: true },
+      { name: "price", label: "કિંમત (₹)", type: "number", required: true },
+      { name: "status", label: "ઓર્ડર સ્ટેટસ", type: "select", options: ["નવો", "પ્રોસેસમાં", "પૂર્ણ", "રદ"], required: true }
     ]
   },
 
@@ -373,7 +436,11 @@ function createField(field, value = "") {
   const required = field.required ? "required" : "";
   let control = "";
 
-  if (field.type === "textarea") {
+  if (field.type === "image") {
+    control = `<input type="hidden" name="${field.name}" value="${safeValue}">
+      <input type="file" name="${field.name}_file" accept="image/*">
+      ${value ? `<small>હાલનો ફોટો: <a href="${safeValue}" target="_blank" rel="noopener">જુઓ</a></small>` : ""}`;
+  } else if (field.type === "textarea") {
     control = `<textarea name="${field.name}" ${required}>${safeValue}</textarea>`;
   } else if (field.type === "select") {
     control = `<select name="${field.name}" ${required}>
@@ -1004,6 +1071,20 @@ async function renderForm(key, row = null) {
     saveButton.disabled = true;
 
     try {
+      for (const field of config.fields.filter(item => item.type === "image")) {
+        const file = formData.get(field.name + "_file");
+        if (file && file.size > 0) {
+          if (!file.type.startsWith("image/")) throw new Error("ફક્ત ફોટો ફાઇલ અપલોડ કરો.");
+          if (file.size > 10 * 1024 * 1024) throw new Error("ફોટો 10 MB કરતાં નાનો હોવો જોઈએ.");
+          const { data: { user }, error: userError } = await supabaseClient.auth.getUser();
+          if (userError || !user) throw new Error("Admin Login ફરી કરો.");
+          const path = `${user.id}/${Date.now()}-${crypto.randomUUID()}-${file.name.replace(/[^\\w.\\-]+/g, "_")}`;
+          const { error: uploadError } = await supabaseClient.storage.from("public-content").upload(path, file, { upsert: false, contentType: file.type });
+          if (uploadError) throw uploadError;
+          record[field.name] = supabaseClient.storage.from("public-content").getPublicUrl(path).data.publicUrl;
+        }
+      }
+
       if (key === "students" && editingId === null) {
         const { data: { session }, error: sessionError } =
           await supabaseClient.auth.getSession();
