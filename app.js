@@ -1180,9 +1180,9 @@ supabaseClient.auth.onAuthStateChange((event, session) => {
     return;
   }
 
-  if (event === "SIGNED_IN" && session) {
-    checkAdmin();
-  }
+  // Login submit handler and startApp() perform the admin check.
+  // Avoid calling checkAdmin() again inside onAuthStateChange, which can
+  // cause concurrent Supabase Auth requests during sign-in.
 
   if (event === "SIGNED_OUT") {
     showOnly("login");
